@@ -1,15 +1,16 @@
-
-package queue_delegate;
+package queue_singlelinkedlist;
 import java.util.*;
 
 public class FifoQueue<E> extends AbstractQueue<E> implements Queue<E> {
-	private Queue<E> list;
+	private QueueNode<E> last;
+	private int size;
 
 	public FifoQueue() {
 		super();
-		list = new LinkedList<E>();
+		last = null;
+		size = 0;
 	}
-	
+
 	/**	
 	 * Inserts the specified element into this queue, if possible
 	 * post:	The specified element is added to the rear of this queue
@@ -18,15 +19,28 @@ public class FifoQueue<E> extends AbstractQueue<E> implements Queue<E> {
 	 * 			to this queue, else false
 	 */
 	public boolean offer(E e) {
-		return list.offer(e);
+		QueueNode<E> node = new QueueNode<E>(e);
+		
+		if (last == null) {
+			last = node;
+			last.next = node;
+			size ++;
+		}
+		else {
+			node.next = last.next;
+			last.next = node;
+			last = node;
+			size ++;
+		}
+		return true;
 	}
-
+	
 	/**	
 	 * Returns the number of elements in this queue
 	 * @return the number of elements in this queue
 	 */
 	public int size() {		
-		return list.size();
+		return size;
 	}
 	
 	/**	
@@ -36,7 +50,13 @@ public class FifoQueue<E> extends AbstractQueue<E> implements Queue<E> {
 	 * 			if this queue is empty
 	 */
 	public E peek() {
-		return list.peek();
+		if (last == null) {
+			return null;
+		}
+		else {
+			return last.next.element;
+		}
+		
 	}
 
 	/**	
@@ -46,16 +66,45 @@ public class FifoQueue<E> extends AbstractQueue<E> implements Queue<E> {
 	 * @return 	the head of this queue, or null if the queue is empty 
 	 */
 	public E poll() {
-		return list.poll();
+		E temp = null;
+		QueueNode<E> tempNode;
+		if (last == null) {
+			temp = null;
+		}
+		else if (last.next == last) {
+			temp = last.element;
+			last.next = null;
+			last = null;
+			size --;
+		}
+		else {
+			tempNode = last.next;
+			last.next = null;
+			last.next = tempNode.next;
+			temp = tempNode.element;
+			size --;
+			
+		}
+		return temp;
 	}
-
+	
+	
 	/**	
 	 * Returns an iterator over the elements in this queue
 	 * @return an iterator over the elements in this queue
 	 */	
 	public Iterator<E> iterator() {
-		return list.iterator();
+		return null;
+	}
+	
+	private static class QueueNode<E> {
+		E element;
+		QueueNode<E> next;
+
+		private QueueNode(E x) {
+			element = x;
+			next = null;
+		}
 	}
 
 }
-
